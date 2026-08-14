@@ -45,10 +45,16 @@ const registrationController = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: `Internal server error ${error}`,
-    });
+    if (error.code === 11000 || error.message?.includes("E11000")){
+       return res.status(400).json({
+         success: false,
+         message: "Email is already registered. Please login instead.",
+       });
+    }
+      res.status(500).json({
+        success: false,
+        message: `Internal server error ${error}`,
+      });
   }
 };
 
