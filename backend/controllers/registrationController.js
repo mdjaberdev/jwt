@@ -11,7 +11,12 @@ const registrationController = async (req, res) => {
         message: "Email is required",
       });
     }
-    const existingUser = await User.findOne({ email: email });
+
+    const cleanEmail = String(email).trim().toLowerCase();
+
+    const existingUser = await User.findOne({
+      email: { $regex: new RegExp(`^${cleanEmail}$`, "i") },
+    });
 
     if (existingUser) {
       return res.status(400).json({
@@ -19,37 +24,38 @@ const registrationController = async (req, res) => {
         message: "Email is already registered. Please login instead.",
       });
     }
+
     if (!role) {
       role = "student";
     }
 
     let per;
-    permission.map((item) => {
-      if (item.role == role) {
+    permission.forEach((item) => {
+      if (item.role === role) {
         per = item.permission;
       }
     });
 
     const user = new User({
-      email: email,
+      email: cleanEmail,
       role: role,
       permission: per,
     });
 
     await user.save();
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       user: {
         user,
       },
     });
-  }  catch (error) {
+  } catch (error) {
     const errorMessage = error.message || String(error);
 
     if (
-      error.code === 11000 || 
-      errorMessage.includes("E11000") || 
+      error.code === 11000 ||
+      errorMessage.includes("E11000") ||
       errorMessage.includes("duplicate key")
     ) {
       return res.status(400).json({
