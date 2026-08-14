@@ -1,5 +1,5 @@
-
 const jwt = require("jsonwebtoken");
+const User = require("../models/userSchema");
 
 const loginController = async (req, res) => {
   const { email } = req.body;
@@ -24,6 +24,6 @@ const loginController = async (req, res) => {
     success: true,
     message: { accessToken },
   });
-}
+};
 
-module.exports = loginController 
+module.exports = loginController;

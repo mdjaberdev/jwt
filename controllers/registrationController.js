@@ -1,5 +1,5 @@
-const permission = require("./utils/permission");
-const User = require("./models/userSchema");
+const User = require("../models/userSchema");
+const permission = require("../utils/permission");
 
 const registrationController = async (req, res) => {
   try {

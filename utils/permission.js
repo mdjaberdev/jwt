@@ -13,8 +13,8 @@ const permission = [
   },
   {
     role: "management",
-    permission: ["all"]
-  }
+    permission: ["all"],
+  },
 ];
 
-module.exports = permission
+module.exports = permission;
