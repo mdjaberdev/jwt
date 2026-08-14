@@ -30,11 +30,13 @@ const registrationController = async (req, res) => {
       }
     });
 
-    const user = await new User({
+    const user = new User({
       email: email,
       role: role,
       permission: per,
-    }).save();
+    });
+
+    await user.save();
 
     res.status(201).json({
       success: true,
