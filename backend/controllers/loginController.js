@@ -5,7 +5,7 @@ const loginController = async (req, res) => {
   const { email } = req.body;
   const existingUser = await User.findOne({ email: email });
   if (!existingUser) {
-    res.status(404).json({
+   return res.status(404).json({
       success: false,
       message: "Please register and then login.",
     });

@@ -52,15 +52,26 @@ const App: React.FC = () => {
     setStatusMsg(null);
     try {
       const res = await loginUser({ email: loginEmail });
-      if (res.success && res.message?.accessToken) {
+
+      // Success response check
+      if (
+        res.success &&
+        typeof res.message === "object" &&
+        res.message?.accessToken
+      ) {
         const authToken = res.message.accessToken;
         setToken(authToken);
         localStorage.setItem("token", authToken);
         setStatusMsg({ text: "Login Successful!", isError: false });
         setLoginEmail("");
       } else {
+        const errorText =
+          typeof res.message === "string"
+            ? res.message
+            : "Login failed. User might not exist.";
+
         setStatusMsg({
-          text: "Login failed. User might not exist.",
+          text: errorText,
           isError: true,
         });
       }
@@ -69,14 +80,10 @@ const App: React.FC = () => {
     }
   };
 
-  // Handle Fetching Private Data
-  // Handle Fetching Private Data
   const handleFetchPrivateData = async () => {
     if (!token) return;
     try {
       const res = await getPrivateData(token);
-
-      // Response যদি সরাসরি স্ট্রিং হয় বা অবজেক্টে মেসেজ থাকে
       if (typeof res === "string") {
         setPrivateMsg(res);
       } else if (res && typeof res === "object" && "message" in res) {
@@ -99,7 +106,6 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center font-sans">
-      {/* Background Decorator */}
       <div className="fixed inset-0 pointer-events-none opacity-20">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-500 rounded-full blur-3xl"></div>
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500 rounded-full blur-3xl"></div>
@@ -129,7 +135,6 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* Top Grid: Registration & Login */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Registration Card */}
           <div className="bg-slate-800/80 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-slate-700/60 hover:border-slate-600 transition duration-300 flex flex-col justify-between">
@@ -172,13 +177,19 @@ const App: React.FC = () => {
                     className="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-100 outline-none cursor-pointer transition duration-200"
                   >
                     <option value="student" className="bg-slate-800 text-white">
+                      Select Role
+                    </option>
+                    <option value="student" className="bg-slate-800 text-white">
                       Student
                     </option>
                     <option value="teacher" className="bg-slate-800 text-white">
                       Teacher
                     </option>
-                    <option value="admin" className="bg-slate-800 text-white">
-                      Admin
+                    <option
+                      value="management"
+                      className="bg-slate-800 text-white"
+                    >
+                      Management
                     </option>
                   </select>
                 </div>
@@ -300,6 +311,6 @@ const App: React.FC = () => {
       </div>
     </div>
   );
-};;
+};
 
 export default App;

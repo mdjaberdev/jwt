@@ -6,9 +6,17 @@ const registrationController = async (req, res) => {
     let { email, role } = req.body;
 
     if (!email) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: "Email is required",
+      });
+    }
+    const existingUser = await User.findOne({ email: email });
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is already registered. Please login instead.",
       });
     }
     if (!role) {
