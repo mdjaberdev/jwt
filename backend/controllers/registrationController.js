@@ -44,17 +44,24 @@ const registrationController = async (req, res) => {
         user,
       },
     });
-  } catch (error) {
-    if (error.code === 11000 || error.message?.includes("E11000")){
-       return res.status(400).json({
-         success: false,
-         message: "Email is already registered. Please login instead.",
-       });
-    }
-      res.status(500).json({
+  }  catch (error) {
+    const errorMessage = error.message || String(error);
+
+    if (
+      error.code === 11000 || 
+      errorMessage.includes("E11000") || 
+      errorMessage.includes("duplicate key")
+    ) {
+      return res.status(400).json({
         success: false,
-        message: `Internal server error ${error}`,
+        message: "Email is already registered. Please login instead.",
       });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: `Internal server error: ${errorMessage}`,
+    });
   }
 };
 
