@@ -1,5 +1,6 @@
 import "./App.css";
-import React, { useState, FormEvent } from "react";
+import React, { useState } from "react";
+import type { FormEvent } from "react";
 import {
   registerUser,
   loginUser,
