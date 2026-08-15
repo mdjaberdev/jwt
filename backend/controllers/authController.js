@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-var jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const User = require("../models/userSchema");
 let pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 let lowercasePattern =
@@ -68,7 +68,7 @@ const registrationController = async (req, res) => {
     success: true,
     message: "Registration successful",
   });
-};;
+};
 
 const loginController = async (req, res) => {
   const { email, password } = req.body;
