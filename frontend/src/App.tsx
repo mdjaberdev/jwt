@@ -1,6 +1,5 @@
 import "./App.css";
-import React, { useState } from "react";
-import type { FormEvent } from "react";
+import React, { useState, type FormEvent } from "react";
 import {
   registerUser,
   loginUser,
@@ -8,10 +7,15 @@ import {
 } from "./components/services/api";
 
 const App: React.FC = () => {
-  // Form State
+  // Registration Form State
+  const [regUserName, setRegUserName] = useState<string>("");
   const [regEmail, setRegEmail] = useState<string>("");
+  const [regPassword, setRegPassword] = useState<string>("");
   const [regRole, setRegRole] = useState<string>("student");
+
+  // Login Form State
   const [loginEmail, setLoginEmail] = useState<string>("");
+  const [loginPassword, setLoginPassword] = useState<string>("");
 
   // App Logic State
   const [token, setToken] = useState<string>(
@@ -28,13 +32,21 @@ const App: React.FC = () => {
     e.preventDefault();
     setStatusMsg(null);
     try {
-      const res = await registerUser({ email: regEmail, role: regRole });
+      const res = await registerUser({
+        userName: regUserName,
+        email: regEmail,
+        password: regPassword,
+        role: regRole,
+      });
+
       if (res.success) {
         setStatusMsg({
-          text: "Registration Successful! Please Login.",
+          text: res.message || "Registration Successful! Please Login.",
           isError: false,
         });
+        setRegUserName("");
         setRegEmail("");
+        setRegPassword("");
       } else {
         setStatusMsg({
           text: res.message || "Registration failed",
@@ -51,27 +63,24 @@ const App: React.FC = () => {
     e.preventDefault();
     setStatusMsg(null);
     try {
-      const res = await loginUser({ email: loginEmail });
+      const res = await loginUser({
+        email: loginEmail,
+        password: loginPassword,
+      });
 
-      // Success response check
-      if (
-        res.success &&
-        typeof res.message === "object" &&
-        res.message?.accessToken
-      ) {
-        const authToken = res.message.accessToken;
+      if (res.success && res.token) {
+        const authToken = res.token;
         setToken(authToken);
         localStorage.setItem("token", authToken);
-        setStatusMsg({ text: "Login Successful!", isError: false });
-        setLoginEmail("");
-      } else {
-        const errorText =
-          typeof res.message === "string"
-            ? res.message
-            : "Login failed. User might not exist.";
-
         setStatusMsg({
-          text: errorText,
+          text: res.message || "Login Successful!",
+          isError: false,
+        });
+        setLoginEmail("");
+        setLoginPassword("");
+      } else {
+        setStatusMsg({
+          text: res.message || "Login failed. Invalid credentials.",
           isError: true,
         });
       }
@@ -80,6 +89,7 @@ const App: React.FC = () => {
     }
   };
 
+  // Handle Fetching Private Data
   const handleFetchPrivateData = async () => {
     if (!token) return;
     try {
@@ -151,10 +161,24 @@ const App: React.FC = () => {
               <form
                 id="regForm"
                 onSubmit={handleRegister}
-                className="space-y-5"
+                className="space-y-4"
               >
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={regUserName}
+                    onChange={(e) => setRegUserName(e.target.value)}
+                    className="w-full px-4 py-2 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-100 placeholder-slate-500 outline-none"
+                    placeholder="johndoe"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
                     Email
                   </label>
                   <input
@@ -162,21 +186,34 @@ const App: React.FC = () => {
                     required
                     value={regEmail}
                     onChange={(e) => setRegEmail(e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-100 placeholder-slate-500 outline-none transition duration-200"
+                    className="w-full px-4 py-2 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-100 placeholder-slate-500 outline-none"
                     placeholder="user@example.com"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={regPassword}
+                    onChange={(e) => setRegPassword(e.target.value)}
+                    className="w-full px-4 py-2 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-100 placeholder-slate-500 outline-none"
+                    placeholder="P@ssword123"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
                     Role
                   </label>
                   <select
                     value={regRole}
                     onChange={(e) => setRegRole(e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-100 outline-none cursor-pointer transition duration-200"
+                    className="w-full px-4 py-2 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-100 outline-none cursor-pointer"
                   >
-                   
                     <option value="student" className="bg-slate-800 text-white">
                       Student
                     </option>
@@ -215,9 +252,9 @@ const App: React.FC = () => {
                 </h2>
               </div>
 
-              <form id="loginForm" onSubmit={handleLogin} className="space-y-5">
+              <form id="loginForm" onSubmit={handleLogin} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
                     Email
                   </label>
                   <input
@@ -225,8 +262,22 @@ const App: React.FC = () => {
                     required
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-slate-100 placeholder-slate-500 outline-none transition duration-200"
+                    className="w-full px-4 py-2 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 text-slate-100 placeholder-slate-500 outline-none"
                     placeholder="registered@example.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    className="w-full px-4 py-2 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 text-slate-100 placeholder-slate-500 outline-none"
+                    placeholder="Enter your password"
                   />
                 </div>
               </form>
@@ -275,9 +326,7 @@ const App: React.FC = () => {
                   Protected Route Test
                 </h2>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Role check:{" "}
-                  <span className="text-rose-400 font-semibold">Student</span>{" "}
-                  blocked with 403 status
+                  Send JWT Token to fetch protected data
                 </p>
               </div>
             </div>

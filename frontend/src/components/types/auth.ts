@@ -1,24 +1,22 @@
 export interface RegisterPayload {
+  userName: string;
   email: string;
-  role: string;
+  password: string;
+  role?: string;
 }
 
 export interface LoginPayload {
   email: string;
+  password: string;
 }
 
-export interface LoginResponse {
+export interface AuthResponse {
   success: boolean;
-  message: {
-    accessToken: string;
-  };
+  message: string;
+  token?: string;
 }
 
 export interface PrivateDataResponse {
   success: boolean;
   message: string;
-}
-
-export interface ApiErrorResponse {
-  message?: string;
 }

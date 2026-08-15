@@ -42,8 +42,6 @@ const registrationController = async (req, res) => {
     });
   }
   console.log(email);
-  // password encryption
-  const hash = bcrypt.hashSync(password, 10);
 
   // password validation
   if (!lowercasePattern.test(password)) {
@@ -54,6 +52,8 @@ const registrationController = async (req, res) => {
     });
   }
   console.log(password);
+  // password hashing
+  const hash = bcrypt.hashSync(password, 10);
 
   // schema validation
   const user = new User({
@@ -68,7 +68,7 @@ const registrationController = async (req, res) => {
     success: true,
     message: "Registration successful",
   });
-};
+};;
 
 const loginController = async (req, res) => {
   const { email, password } = req.body;
