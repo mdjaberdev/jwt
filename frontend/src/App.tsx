@@ -1,5 +1,4 @@
-import("./App.css")
-
+import "./App.css";
 import React, { useState, type FormEvent } from "react";
 import {
   registerUser,
@@ -190,7 +189,12 @@ const AuthDashboard: React.FC = () => {
 
           {/* Registration Form */}
           {activeTab === "register" && (
-            <form onSubmit={handleRegister} className="space-y-4">
+            <form
+              onSubmit={handleRegister}
+              className="space-y-4"
+              autoComplete="off"
+            >
+              {/* Username Input */}
               <div>
                 <label className="block text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1">
                   Username
@@ -202,10 +206,13 @@ const AuthDashboard: React.FC = () => {
                   maxLength={20}
                   value={regUserName}
                   onChange={(e) => setRegUserName(e.target.value)}
+                  autoComplete="off"
                   className="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
                   placeholder="johndoe"
                 />
               </div>
+
+              {/* Email Input */}
               <div>
                 <label className="block text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1">
                   Email
@@ -215,10 +222,13 @@ const AuthDashboard: React.FC = () => {
                   required
                   value={regEmail}
                   onChange={(e) => setRegEmail(e.target.value)}
+                  autoComplete="off"
                   className="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
                   placeholder="user@example.com"
                 />
               </div>
+
+              {/* Password Input */}
               <div>
                 <label className="block text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1">
                   Password
@@ -228,10 +238,17 @@ const AuthDashboard: React.FC = () => {
                   required
                   value={regPassword}
                   onChange={(e) => setRegPassword(e.target.value)}
+                  autoComplete="new-password"
                   className="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
-                  placeholder="••••••••"
+                  placeholder="e.g. Pass@1234"
                 />
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Must contain uppercase, lowercase, number, special char (&ge;8
+                  chars)
+                </p>
               </div>
+
+              {/* Role Selection */}
               <div>
                 <label className="block text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1">
                   Role
@@ -239,13 +256,14 @@ const AuthDashboard: React.FC = () => {
                 <select
                   value={regRole}
                   onChange={(e) => setRegRole(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition cursor-pointer"
+                  className="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition cursor-pointer text-slate-200"
                 >
                   <option value="student">Student</option>
                   <option value="teacher">Teacher</option>
                   <option value="management">Management</option>
                 </select>
               </div>
+
               <button
                 type="submit"
                 disabled={isLoading}
