@@ -14,14 +14,14 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
-  role: {
-    type: String,
-    enum: ["student", "teacher", "management"],
-    default: "student"
-  },
-  permission: {
-    type: Array,
-  },
+  // role: {
+  //   type: String,
+  //   enum: ["student", "teacher", "management"],
+  //   default: "student"
+  // },
+  // permission: {
+  //   type: Array,
+  // },
 });
 
 module.exports = mongoose.model("User", userSchema);
