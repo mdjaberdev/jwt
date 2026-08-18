@@ -3,7 +3,8 @@ const {
   registrationController,
   loginController,
   allDataController,
-  deleteController
+  deleteController,
+  updateController
 } = require("../controllers/authController");
 const createLimiter = require("../utils/ralelimiter");
 // const authMiddleware = require("../middlewares/authMiddleware");
@@ -20,5 +21,6 @@ _.post("/registration", createLimiter(20), registrationController);
 _.post("/login", createLimiter(20), loginController);
 _.get("/allDatas", createLimiter(20), allDataController);
 _.delete("/deleteData/:id", createLimiter(20), deleteController);
+_.post("/updateData/:id", createLimiter(20), updateController);
 
 module.exports = _;

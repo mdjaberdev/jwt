@@ -14,21 +14,19 @@ const registrationController = async (req, res) => {
         message: "Please fill all fields",
       });
     }
-    
-  const user = new User({
-    userName: userName,
-    email: email,
-    password: password
-  })
 
-  await user.save()
+    const user = new User({
+      userName: userName,
+      email: email,
+      password: password,
+    });
 
-  return res.status(201).json({
-    success: true,
-    message: "Created"
-  })
+    await user.save();
 
-
+    return res.status(201).json({
+      success: true,
+      message: "Created",
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -37,15 +35,14 @@ const registrationController = async (req, res) => {
   }
 };
 
-const allDataController = async (req, res)=>{
-   const allDatas = await User.find({})
+const allDataController = async (req, res) => {
+  const allDatas = await User.find({});
 
-   res.status(200).json({
-     success: false,
-     message: allDatas,
-   });
-
-}
+  res.status(200).json({
+    success: false,
+    message: allDatas,
+  });
+};
 
 const loginController = async (req, res) => {
   try {
@@ -99,18 +96,29 @@ const loginController = async (req, res) => {
 };
 
 const deleteController = async (req, res) => {
-  const {id} = req.params
-  const deleteData = await User.findByIdAndDelete(id)
+  const { id } = req.params;
+  const deleteData = await User.findByIdAndDelete(id);
 
+  return res.status(200).json({
+    success: true,
+    message: "Deleted",
+  });
+};
+
+const updateController = async (req, res) => {
+  const { id } = req.params;
+
+  const updateData = await User.findByIdAndUpdate({ _id: id }, req.body);
   res.status(200).json({
     success: true,
-    message: "Deleted"
-  })
-}
+    message: "Updated",
+  });
+};
 
 module.exports = {
   registrationController,
   allDataController,
   loginController,
   deleteController,
+  updateController,
 };
