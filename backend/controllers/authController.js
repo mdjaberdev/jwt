@@ -1,26 +1,56 @@
 const User = require("../models/userSchema");
 const bcrypt = require("bcrypt");
-const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const strongPasswordRegex =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const regexPass =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+const nodemailer = require("nodemailer");
+const otpGenerator = require("otp-generator");
 
 const registrationController = async (req, res) => {
   try {
-    const { userName, email, password } = req.body;
+    const { email, password, confirmPassword } = req.body;
 
-    if (!userName || !email || !password) {
+    if (!email || !password || !confirmPassword) {
       return res.status(400).json({
         success: false,
         message: "Please fill all fields",
       });
     }
 
-    const user = new User({
-      userName: userName,
-      email: email,
-      password: password,
-    });
+    const existingUser = await User.findOne({ email: email });
 
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "User already exists",
+      });
+    }
+    if (!regexEmail.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid email",
+      });
+    }
+
+    if (!regexPass.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message: "8 to 16 chars, 1 uppercase, 1 lowercase, 1 number, 1 special",
+      });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Confirm Password not match",
+      });
+    }
+    const hashPassword = bcrypt.hashSync(password, 10);
+
+    const user = new User({
+      email: email,
+      password: hashPassword,
+    });
     await user.save();
 
     return res.status(201).json({
@@ -46,46 +76,33 @@ const allDataController = async (req, res) => {
 
 const loginController = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
+    const { email, password, otp } = req.body;
+    if (!email || !password || !otp) {
       return res.status(400).json({
         success: false,
         message: "Please fill all fields",
       });
     }
-
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({
-        success: false,
-        message: "Please a valid email",
-      });
-    }
-
     const existingUser = await User.findOne({ email: email });
-    if (!existingUser) {
+
+    if (existingUser.otp !== otp) {
       return res.status(400).json({
         success: false,
-        messsage: "User not found",
+        message: "Otp not match",
       });
     }
 
-    let matchPassword = bcrypt.compareSync(password, existingUser.password);
+    let matchPass = bcrypt.compareSync(password, existingUser.password);
 
-    if (!matchPassword) {
+    if (!matchPass) {
       return res.status(400).json({
         success: false,
-        messsage: "Password not match",
+        message: "Password not match",
       });
     }
-
     return res.status(200).json({
       success: true,
-      message: "Login successfully",
-      user: {
-        id: existingUser._id,
-        userName: existingUser.userName,
-        email: existingUser.email,
-      },
+      message: "Login",
     });
   } catch (error) {
     return res.status(500).json({
@@ -115,10 +132,64 @@ const updateController = async (req, res) => {
   });
 };
 
+const sendotpControler = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Please fill all  fields",
+      });
+    }
+
+    const existingUser = await User.findOne({ email: email });
+
+    if (!existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    let otp = otpGenerator.generate(6);
+    await User.findOneAndUpdate({ email: email }, { otp: otp });
+
+    // Create a transporter using SMTP
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: 587,
+      secure: false,
+      auth: {
+        user: "mdjaber.dev@gmail.com",
+        pass: "glmn bseo dprq akxf",
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: '"Example Team" mdjaber.dev@gmail.com"',
+      to: email, // list of recipients
+      subject: "Hello", // subject line
+      text: "Hello world?", // plain text body
+      html: `<b>Hello ${otp}</b>`, // HTML body
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Otp send",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: `Internal Server Error: ${error.message}`,
+    });
+  }
+};
+
 module.exports = {
   registrationController,
   allDataController,
   loginController,
   deleteController,
   updateController,
+  sendotpControler,
 };

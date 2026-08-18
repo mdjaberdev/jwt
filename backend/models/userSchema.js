@@ -12,16 +12,13 @@ const userSchema = new Schema({
   },
   password: {
     type: String,
-    required: true
+    required: true,
   },
-  // role: {
-  //   type: String,
-  //   enum: ["student", "teacher", "management"],
-  //   default: "student"
-  // },
-  // permission: {
-  //   type: Array,
-  // },
+  otp: {
+    type: String,
+    default: ""
+  },
+
 });
 
 module.exports = mongoose.model("User", userSchema);
