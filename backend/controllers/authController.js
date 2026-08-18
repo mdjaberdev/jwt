@@ -6,68 +6,24 @@ const strongPasswordRegex =
 
 const registrationController = async (req, res) => {
   try {
-    const { userName, email, password, confirmPassword } = req.body;
+    const { userName, email, password } = req.body;
 
-    if (!userName || !email || !password || !confirmPassword) {
+    if (!userName || !email || !password) {
       return res.status(400).json({
         success: false,
         message: "Please fill all fields",
       });
     }
-    if (userName.length < 3 || userName.length > 20) {
-      return res.status(400).json({
-        success: false,
-        message: "Please must be between 3 and 20 character",
-      });
-    }
+    
+  const user = new User({
+    userName: userName,
+    email: email,
+    password: password
+  })
 
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({
-        success: false,
-        message: "Please a valid email",
-      });
-    }
+  await user.save()
 
-    if (password !== confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        message: "confirmPassword don't match",
-      });
-    }
-    if (!strongPasswordRegex.test(password)) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
-      });
-    }
 
-    const existingUser = await User.findOne({ email: email });
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        messsage: "User already exists",
-      });
-    }
-
-    const hashedPassword = bcrypt.hashSync(password, 10);
-    const user = new User({
-      userName: userName,
-      email: email,
-      password: hashedPassword,
-    });
-
-    await user.save();
-
-    return res.status(201).json({
-      success: true,
-      message: "Registration successfully",
-      user: {
-        id: user._id,
-        userName: user.userName,
-        email: user.email,
-      },
-    });
   } catch (error) {
     return res.status(500).json({
       success: false,
