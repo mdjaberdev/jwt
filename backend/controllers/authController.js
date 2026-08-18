@@ -98,4 +98,19 @@ const loginController = async (req, res) => {
   }
 };
 
-module.exports = { registrationController, allDataController, loginController };
+const deleteController = async (req, res) => {
+  const {id} = req.params
+  const deleteData = await User.findByIdAndDelete(id)
+
+  res.status(200).json({
+    success: true,
+    message: "Deleted"
+  })
+}
+
+module.exports = {
+  registrationController,
+  allDataController,
+  loginController,
+  deleteController,
+};
