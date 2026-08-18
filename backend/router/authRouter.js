@@ -1,7 +1,8 @@
 const express = require("express");
 const {
   registrationController,
-  loginController
+  loginController,
+  allDataController
 } = require("../controllers/authController");
 const createLimiter = require("../utils/ralelimiter");
 // const authMiddleware = require("../middlewares/authMiddleware");
@@ -16,5 +17,6 @@ const _ = express.Router();
 
 _.post("/registration", createLimiter(20), registrationController);
 _.post("/login", createLimiter(20), loginController);
+_.get("/allDatas", createLimiter(20), allDataController);
 
 module.exports = _;

@@ -23,6 +23,11 @@ const registrationController = async (req, res) => {
 
   await user.save()
 
+  return res.status(201).json({
+    success: true,
+    message: "Created"
+  })
+
 
   } catch (error) {
     return res.status(500).json({
@@ -31,6 +36,16 @@ const registrationController = async (req, res) => {
     });
   }
 };
+
+const allDataController = async (req, res)=>{
+   const allDatas = await User.find({})
+
+   res.status(200).json({
+     success: false,
+     message: allDatas,
+   });
+
+}
 
 const loginController = async (req, res) => {
   try {
@@ -83,4 +98,4 @@ const loginController = async (req, res) => {
   }
 };
 
-module.exports = { registrationController, loginController };
+module.exports = { registrationController, allDataController, loginController };
